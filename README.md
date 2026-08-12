@@ -1,5 +1,7 @@
 # PHS Scholarship Model Simulator
 
+**Live demo →** [greeshma0218.github.io/phs-scholarship-model/phs_scholarship_model_simulator.html](https://greeshma0218.github.io/phs-scholarship-model/phs_scholarship_model_simulator.html)
+
 An interactive what-if tool for modeling proposed changes to NCF's Presidential
 Honors Scholarship (PHS) award structure for FTIC students.
 

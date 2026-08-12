@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PHS Scholarship Model Simulator</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Inter:wght@400;500;600;700&family=Roboto+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#10233F;
+    --navy-light:#1B3A63;
+    --gold:#C89B3C;
+    --cream:#FAF8F4;
+    --paper:#FFFFFF;
+    --ink:#1A1A1A;
+    --muted:#6B7280;
+    --border:#E4DFD4;
+    --green:#2E7D53;
+    --green-bg:#EAF3EE;
+    --rust:#A6432E;
+    --rust-bg:#FBEEEB;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--cream);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    padding-bottom:60px;
+  }
+  .wrap{max-width:1080px;margin:0 auto;padding:0 24px;}
+
+  header.top{
+    background:var(--navy);
+    color:#fff;
+    padding:28px 0 22px;
+    border-bottom:4px solid var(--gold);
+  }
+  header.top h1{
+    font-family:'Source Serif 4',serif;
+    font-weight:600;
+    font-size:26px;
+    margin:0 0 4px;
+    letter-spacing:0.2px;
+  }
+  header.top p{
+    margin:0;
+    color:#C7D2E3;
+    font-size:14px;
+  }
+
+  /* Impact bar - signature element */
+  .impact{
+    background:var(--navy-light);
+    color:#fff;
+    margin-top:0;
+  }
+  .impact-inner{
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr;
+    gap:0;
+    padding:22px 0;
+  }
+  .impact-cell{
+    padding:0 24px;
+    border-left:1px solid rgba(255,255,255,0.15);
+  }
+  .impact-cell:first-child{border-left:none;}
+  .impact-label{
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:#A9B8D1;
+    margin-bottom:6px;
+  }
+  .impact-value{
+    font-family:'Source Serif 4',serif;
+    font-size:32px;
+    font-weight:600;
+    line-height:1.1;
+  }
+  .impact-sub{
+    font-size:12px;
+    color:#A9B8D1;
+    margin-top:4px;
+  }
+  .impact-value.diff-positive{color:#8FD4A8;}
+  .impact-value.diff-negative{color:#F2A48F;}
+
+  main{padding-top:28px;}
+
+  .panel{
+    background:var(--paper);
+    border:1px solid var(--border);
+    border-radius:6px;
+    padding:22px 24px;
+    margin-bottom:20px;
+  }
+  .panel h2{
+    font-family:'Source Serif 4',serif;
+    font-size:18px;
+    font-weight:600;
+    margin:0 0 4px;
+    color:var(--navy);
+  }
+  .panel .desc{
+    font-size:13px;
+    color:var(--muted);
+    margin:0 0 16px;
+  }
+
+  .btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:4px;}
+  button{
+    font-family:'Inter',sans-serif;
+    font-size:13px;
+    font-weight:600;
+    padding:9px 14px;
+    border-radius:5px;
+    border:1px solid var(--navy);
+    background:var(--navy);
+    color:#fff;
+    cursor:pointer;
+  }
+  button.secondary{
+    background:#fff;
+    color:var(--navy);
+  }
+  button:hover{opacity:0.88;}
+
+  table{border-collapse:collapse;width:100%;}
+  .award-tables{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:16px;}
+  .award-tables table th, .award-tables table td{
+    padding:7px 8px;
+    font-size:13px;
+    border-bottom:1px solid var(--border);
+    text-align:left;
+  }
+  .award-tables table th{
+    color:var(--muted);
+    font-weight:600;
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:0.04em;
+  }
+  input[type=number]{
+    width:88px;
+    padding:5px 7px;
+    border:1px solid var(--border);
+    border-radius:4px;
+    font-family:'Roboto Mono',monospace;
+    font-size:13px;
+    text-align:right;
+  }
+  input[type=number]:focus{outline:2px solid var(--gold);border-color:var(--gold);}
+
+  .rules-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:18px;margin-top:14px;}
+  .field label{
+    display:block;
+    font-size:12px;
+    color:var(--muted);
+    margin-bottom:6px;
+  }
+  .field input{width:100%;}
+
+  .matrix-wrap{overflow-x:auto;margin-top:16px;}
+  table.grid{min-width:640px;}
+  table.grid th, table.grid td{
+    border:1px solid var(--border);
+    padding:6px;
+    text-align:center;
+    font-size:13px;
+  }
+  table.grid thead th{
+    background:var(--navy);
+    color:#fff;
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:0.03em;
+  }
+  table.grid th.rowhead{
+    background:#F2EEE5;
+    color:var(--navy);
+    font-weight:600;
+    font-size:12px;
+  }
+  table.grid td input{width:56px;padding:4px;}
+  table.grid td.pic-cell{background:#FBF6E9;}
+
+  .computed-note{font-size:12px;color:var(--muted);margin-top:10px;}
+
+  .award-preview{margin-top:8px;font-size:12px;color:var(--muted);}
+  table.grid td .award-tag{
+    display:block;
+    font-size:10px;
+    color:var(--gold);
+    font-family:'Roboto Mono',monospace;
+    margin-top:2px;
+  }
+
+  .pic-row{display:flex;gap:18px;align-items:flex-end;margin-top:16px;flex-wrap:wrap;}
+
+  footer{
+    max-width:1080px;
+    margin:0 auto;
+    padding:8px 24px 0;
+    font-size:12px;
+    color:var(--muted);
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <h1>PHS Scholarship Model Simulator</h1>
+    <p>Fall 2026 FTIC class &mdash; projected spend under the proposed stacking / award-table model</p>
+  </div>
+</header>
+
+<div class="impact">
+  <div class="wrap impact-inner">
+    <div class="impact-cell">
+      <div class="impact-label">Projected total &mdash; new model</div>
+      <div class="impact-value" id="projectedTotal">$0</div>
+      <div class="impact-sub">Based on the grid, tables, and rules below</div>
+    </div>
+    <div class="impact-cell">
+      <div class="impact-label">Actual spend &mdash; this FTIC group</div>
+      <div class="impact-value" id="actualDisplay">$1,972,567</div>
+      <div class="impact-sub">Stored PHS award total for these 229 students (not the org-wide $5.1M figure)</div>
+    </div>
+    <div class="impact-cell">
+      <div class="impact-label">Difference</div>
+      <div class="impact-value" id="diffValue">$0</div>
+      <div class="impact-sub" id="diffSub">&nbsp;</div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+
+  <div class="panel">
+    <h2>1 &middot; Award tables</h2>
+    <p class="desc">Dollar award per level. Loaded with the proposed (Option 1) values &mdash; edit any cell to test a variation.</p>
+    <div class="btn-row">
+      <button class="secondary" onclick="loadProposed()">Reset to proposed (Option 1) defaults</button>
+      <button class="secondary" onclick="loadCurrent()">Reset to current-model defaults</button>
+    </div>
+    <div class="award-tables">
+      <table>
+        <thead><tr><th>GPA Level</th><th>Award</th></tr></thead>
+        <tbody id="gpaTableBody"></tbody>
+      </table>
+      <table>
+        <thead><tr><th>Test Level</th><th>Award</th></tr></thead>
+        <tbody id="testTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>2 &middot; Stacking rule &amp; floor</h2>
+    <p class="desc">Awards combine (GPA + Test) when the level gap is within the stacking window; otherwise the student receives the higher of the two awards.</p>
+    <div class="rules-grid">
+      <div class="field">
+        <label for="stackThreshold">Stack when level gap is &le;</label>
+        <input type="number" id="stackThreshold" value="2" min="0" max="5" oninput="recalc()">
+      </div>
+      <div class="field">
+        <label for="minFloor">Minimum award (all admits)</label>
+        <input type="number" id="minFloor" value="500" step="50" oninput="recalc()">
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>3 &middot; President's Inner Circle (PIC)</h2>
+    <p class="desc">PIC bypasses the GPA/Test grid entirely &mdash; it's a fixed award, tracked separately.</p>
+    <div class="pic-row">
+      <div class="field">
+        <label for="picCount">Number of PIC students</label>
+        <input type="number" id="picCount" value="17" min="0" oninput="recalc()">
+      </div>
+      <div class="field">
+        <label for="picAward">PIC total award</label>
+        <input type="number" id="picAward" value="16000" step="500" oninput="recalc()">
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>4 &middot; Population grid</h2>
+    <p class="desc">Count of Fall 2026 FTIC students at each GPA Level &times; Test Level combination &mdash; pull this from the Slate query as a joint distribution (not the separate GPA-only / Test-only breakdowns). Each cell also shows the award it would compute to under the current rules above.</p>
+    <div class="matrix-wrap">
+      <table class="grid" id="popGrid"></table>
+    </div>
+    <p class="computed-note">Small gold figure under each count = the per-student award that combination currently computes to, given the tables and stacking rule above.</p>
+  </div>
+
+</main>
+
+<footer>
+  Working model &mdash; all figures above are editable. Fill in the population grid from the Slate export and adjust the tables/rules to test alternative structures before sending this along.
+</footer>
+
+<script>
+const gpaLevels = [1,2,3,4,5,6];
+const testLevels = [1,2,3,4,5,6];
+
+const PROPOSED = {
+  gpa:   {1:6500, 2:4000, 3:3500, 4:2000, 5:1000, 6:250},
+  test:  {1:8500, 2:6000, 3:3500, 4:2000, 5:250,  6:250},
+  stackThreshold: 2,
+  picAward: 16000,
+  minFloor: 500
+};
+const CURRENT = {
+  gpa:   {1:8000, 2:5000, 3:3500, 4:2500, 5:1000, 6:250},
+  test:  {1:8000, 2:5000, 3:4000, 4:2000, 5:250,  6:250},
+  stackThreshold: 1,
+  picAward: 23733,
+  minFloor: 500
+};
+
+let gpaAwards = {...PROPOSED.gpa};
+let testAwards = {...PROPOSED.test};
+// Fall 2026 deposited FTIC class (Freshman/Early Admit, Dep Paid/Dep Waived), n=229, PIC excluded (17)
+let popGridCounts = {
+  "1-1":1, "1-2":12, "1-3":25, "1-4":24, "1-5":5, "1-6":2,
+  "2-1":2, "2-2":5,  "2-3":14, "2-4":23, "2-5":3, "2-6":3,
+  "3-1":3, "3-2":4,  "3-3":8,  "3-4":20, "3-5":3, "3-6":4,
+  "4-1":0, "4-2":2,  "4-3":7,  "4-4":19, "4-5":1, "4-6":2,
+  "5-1":0, "5-2":0,  "5-3":5,  "5-4":1,  "5-5":1, "5-6":2,
+  "6-1":1, "6-2":2,  "6-3":1,  "6-4":3,  "6-5":1, "6-6":3
+};
+
+function fmt(n){
+  return '$' + Math.round(n).toLocaleString('en-US');
+}
+
+function buildAwardTables(){
+  const gBody = document.getElementById('gpaTableBody');
+  const tBody = document.getElementById('testTableBody');
+  gBody.innerHTML = '';
+  tBody.innerHTML = '';
+  gpaLevels.forEach(l=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>Level ${l}</td><td><input type="number" step="50" id="gpa_${l}" value="${gpaAwards[l]}" oninput="onAwardChange()"></td>`;
+    gBody.appendChild(tr);
+  });
+  testLevels.forEach(l=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>Level ${l}</td><td><input type="number" step="50" id="test_${l}" value="${testAwards[l]}" oninput="onAwardChange()"></td>`;
+    tBody.appendChild(tr);
+  });
+}
+
+function onAwardChange(){
+  gpaLevels.forEach(l=> gpaAwards[l] = Number(document.getElementById('gpa_'+l).value) || 0);
+  testLevels.forEach(l=> testAwards[l] = Number(document.getElementById('test_'+l).value) || 0);
+  recalc();
+}
+
+function buildGrid(){
+  const table = document.getElementById('popGrid');
+  let html = '<thead><tr><th></th>';
+  testLevels.forEach(t=> html += `<th>Test L${t}</th>`);
+  html += '</tr></thead><tbody>';
+  gpaLevels.forEach(g=>{
+    html += `<tr><th class="rowhead">GPA L${g}</th>`;
+    testLevels.forEach(t=>{
+      const key = g+'-'+t;
+      const val = popGridCounts[key] || 0;
+      html += `<td><input type="number" min="0" id="cell_${key}" value="${val}" oninput="onGridChange()"><span class="award-tag" id="award_${key}"></span></td>`;
+    });
+    html += '</tr>';
+  });
+  html += '</tbody>';
+  table.innerHTML = html;
+}
+
+function onGridChange(){
+  gpaLevels.forEach(g=> testLevels.forEach(t=>{
+    const key = g+'-'+t;
+    popGridCounts[key] = Number(document.getElementById('cell_'+key).value) || 0;
+  }));
+  recalc();
+}
+
+function cellAward(g, t){
+  const stackThreshold = Number(document.getElementById('stackThreshold').value) || 0;
+  const minFloor = Number(document.getElementById('minFloor').value) || 0;
+  const diff = Math.abs(g - t);
+  let award;
+  if(diff <= stackThreshold){
+    award = gpaAwards[g] + testAwards[t];
+  } else {
+    award = Math.max(gpaAwards[g], testAwards[t]);
+  }
+  return Math.max(award, minFloor);
+}
+
+function recalc(){
+  let total = 0;
+  gpaLevels.forEach(g=> testLevels.forEach(t=>{
+    const key = g+'-'+t;
+    const count = popGridCounts[key] || 0;
+    const award = cellAward(g,t);
+    const tag = document.getElementById('award_'+key);
+    if(tag) tag.textContent = fmt(award);
+    total += count * award;
+  }));
+
+  const picCount = Number(document.getElementById('picCount').value) || 0;
+  const picAward = Number(document.getElementById('picAward').value) || 0;
+  total += picCount * picAward;
+
+  document.getElementById('projectedTotal').textContent = fmt(total);
+
+  const actual = Number(document.getElementById('actualInput')?.value) || 1972567;
+  document.getElementById('actualDisplay').textContent = fmt(actual);
+
+  const diff = total - actual;
+  const diffEl = document.getElementById('diffValue');
+  const diffSub = document.getElementById('diffSub');
+  diffEl.textContent = (diff >= 0 ? '+' : '\u2212') + fmt(Math.abs(diff)).replace('$','$');
+  if(diff < 0){
+    diffEl.className = 'impact-value diff-positive';
+    diffSub.textContent = 'Lower projected spend than actual';
+  } else if (diff > 0) {
+    diffEl.className = 'impact-value diff-negative';
+    diffSub.textContent = 'Higher projected spend than actual';
+  } else {
+    diffEl.className = 'impact-value';
+    diffSub.textContent = 'Matches actual spend';
+  }
+}
+
+function loadProposed(){
+  gpaAwards = {...PROPOSED.gpa};
+  testAwards = {...PROPOSED.test};
+  document.getElementById('stackThreshold').value = PROPOSED.stackThreshold;
+  document.getElementById('picAward').value = PROPOSED.picAward;
+  document.getElementById('minFloor').value = PROPOSED.minFloor;
+  buildAwardTables();
+  recalc();
+}
+function loadCurrent(){
+  gpaAwards = {...CURRENT.gpa};
+  testAwards = {...CURRENT.test};
+  document.getElementById('stackThreshold').value = CURRENT.stackThreshold;
+  document.getElementById('picAward').value = CURRENT.picAward;
+  document.getElementById('minFloor').value = CURRENT.minFloor;
+  buildAwardTables();
+  recalc();
+}
+
+// inject editable "actual" field into the impact bar sub-label area
+document.addEventListener('DOMContentLoaded', ()=>{
+  const actualCell = document.getElementById('actualDisplay').parentElement;
+  const editRow = document.createElement('div');
+  editRow.style.marginTop = '6px';
+  editRow.innerHTML = `<input type="number" id="actualInput" value="1972567" style="width:120px;font-family:'Roboto Mono',monospace;padding:4px 6px;border-radius:4px;border:1px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.08);color:#fff;font-size:12px;">`;
+  actualCell.appendChild(editRow);
+  document.getElementById('actualInput').addEventListener('input', recalc);
+
+  buildAwardTables();
+  buildGrid();
+  recalc();
+});
+</script>
+
+</body>
+</html>

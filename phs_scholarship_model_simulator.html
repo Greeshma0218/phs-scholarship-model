@@ -169,6 +169,18 @@
     font-weight:700;
     color:var(--navy);
   }
+  input.kpi-input{
+    width:100%;
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:4px 8px;
+    font-size:22px;
+    font-weight:700;
+    color:var(--navy);
+    font-family:inherit;
+    background:#fbfcfe;
+  }
+  input.kpi-input:focus{outline:2px solid var(--blue); outline-offset:1px;}
   .kpi.delta-pos .value{color:var(--red);}
   .kpi.delta-neg .value{color:var(--green);}
   .kpi .sub{
@@ -320,7 +332,7 @@
     </div>
     <div class="kpi">
       <div class="label">Actual Fall 2026 PHS spend</div>
-      <div class="value" id="kpiActual">$1,972,567</div>
+      <div class="value"><input id="actualSpendInput" class="kpi-input" type="number" value="1976417"></div>
       <div class="sub">stored award total, 229 strict-FTIC deposits</div>
     </div>
     <div class="kpi">
@@ -366,7 +378,7 @@
   </div>
 
   <div class="note">
-    Actual Fall 2026 spend ($1,972,567) reflects the stored PHS award amounts for the 229 strict-FTIC deposits pulled from Slate
+    Actual Fall 2026 spend ($1,976,417) reflects the stored PHS award amounts for the 229 strict-FTIC deposits pulled from Slate
     (Freshman/Early Admit application type, excluding all transfer students). The 228-student grid above reflects the same
     population as recorded in the source GPA × test score breakdown; a 1-student difference from the 229 total may reflect
     a student missing a GPA or test score level. Adjust the matrix counts directly if you have an updated pull.
@@ -387,7 +399,12 @@ const matrixData = [
 const DEFAULT_GPA = {1:6500, 2:4000, 3:3500, 4:2000, 5:1000, 6:250};
 const DEFAULT_TEST = {1:8500, 2:6000, 3:3500, 4:2000, 5:250, 6:250};
 const DEFAULT_PIC = 16000;
-const ACTUAL_SPEND = 1972567;
+const DEFAULT_ACTUAL_SPEND = 1976417;
+
+function getActualSpend(){
+  const inp = document.getElementById('actualSpendInput');
+  return Math.max(0, Number(inp.value) || 0);
+}
 
 function buildMatrixInputs(){
   const body = document.getElementById('matrixBody');
@@ -477,8 +494,9 @@ function recalc(){
   document.getElementById('kpiCount').textContent = totalStudents.toLocaleString('en-US');
   document.getElementById('kpiProjected').textContent = fmtMoney(totalSpend);
 
-  const delta = totalSpend - ACTUAL_SPEND;
-  const deltaPct = ACTUAL_SPEND ? (delta / ACTUAL_SPEND) * 100 : 0;
+  const actualSpend = getActualSpend();
+  const delta = totalSpend - actualSpend;
+  const deltaPct = actualSpend ? (delta / actualSpend) * 100 : 0;
   const deltaCard = document.getElementById('kpiDeltaCard');
   const deltaEl = document.getElementById('kpiDelta');
   deltaEl.textContent = (delta >= 0 ? '+' : '−') + fmtMoney(Math.abs(delta)).replace('$','$');
@@ -517,6 +535,7 @@ function resetAll(){
   document.querySelectorAll('[data-gpa]').forEach(inp => inp.value = DEFAULT_GPA[inp.dataset.gpa]);
   document.querySelectorAll('[data-test]').forEach(inp => inp.value = DEFAULT_TEST[inp.dataset.test]);
   document.getElementById('picAward').value = DEFAULT_PIC;
+  document.getElementById('actualSpendInput').value = DEFAULT_ACTUAL_SPEND;
   buildMatrixInputs();
   attachListeners();
   recalc();

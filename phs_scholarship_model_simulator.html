@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Fall 2027 PHS Model — F26 Spend Analysis</title>
+<title>PHS Award Model Simulator — New College of Florida</title>
 <style>
   :root{
-    --navy:#1f3864;
-    --navy-deep:#14264a;
+    --navy:#041e42;
+    --navy-deep:#02132c;
     --blue:#2e5395;
     --blue-light:#d9e2f3;
     --ink:#1c1e21;
@@ -21,6 +21,7 @@
     --green-bg:#e7f5ee;
     --red:#a13333;
     --red-bg:#fbeaea;
+    --gold:#c99b3c;
   }
   *{box-sizing:border-box;}
   body{
@@ -29,22 +30,75 @@
     background:var(--bg);
     color:var(--ink);
   }
+  .brandbar{
+    background:var(--navy-deep);
+    color:#ffffff;
+    font-size:16px;
+    letter-spacing:1px;
+    text-transform:uppercase;
+    padding:16px 40px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    border-bottom:3px solid var(--gold);
+  }
+  .brandbar .mark{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-weight:700;
+    font-size:20px;
+  }
+  .brandbar .mark .dot{
+    width:11px; height:11px; border-radius:50%; background:var(--gold);
+  }
+  .brandbar .tag{
+    font-size:12px;
+    letter-spacing:1px;
+    color:var(--gold);
+    font-weight:600;
+  }
   header{
     background:linear-gradient(90deg, var(--navy-deep), var(--navy));
     color:#fff;
-    padding:28px 40px;
+    padding:22px 40px 24px;
   }
   header h1{
     margin:0 0 4px;
-    font-size:22px;
+    font-size:17px;
     font-weight:600;
     letter-spacing:.2px;
   }
-  header p{
+  header .sub{
     margin:0;
     font-size:13px;
     color:#c7d3ea;
   }
+  .cohort-row{
+    margin-top:14px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  .cohort-row label{
+    font-size:11.5px;
+    text-transform:uppercase;
+    letter-spacing:.6px;
+    color:#c7d3ea;
+  }
+  .cohort-row input{
+    background:rgba(255,255,255,.08);
+    border:1px solid rgba(255,255,255,.35);
+    border-radius:6px;
+    color:#fff;
+    padding:6px 10px;
+    font-size:13.5px;
+    font-weight:600;
+    min-width:220px;
+  }
+  .cohort-row input::placeholder{color:#a9b8d6;}
+  .cohort-row input:focus{outline:2px solid var(--gold); outline-offset:1px;}
   .wrap{
     max-width:1180px;
     margin:0 auto;
@@ -74,6 +128,7 @@
     border:1px solid var(--line);
     border-radius:10px;
     overflow:hidden;
+    margin-bottom:24px;
   }
   .card-head{
     background:var(--blue);
@@ -82,6 +137,11 @@
     font-size:13px;
     font-weight:600;
     letter-spacing:.2px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:10px;
   }
   .card-body{padding:14px 16px;}
   table{
@@ -144,6 +204,25 @@
     text-align:right;
   }
   .matrix-card .card-body{overflow-x:auto;}
+  .pop-toggle{
+    display:flex;
+    gap:6px;
+  }
+  .pop-btn{
+    background:rgba(255,255,255,.15);
+    border:1px solid rgba(255,255,255,.5);
+    color:#fff;
+    border-radius:6px;
+    padding:5px 12px;
+    font-size:12px;
+    font-weight:600;
+    cursor:pointer;
+  }
+  .pop-btn.active{
+    background:#fff;
+    color:var(--navy);
+  }
+  .pop-btn:hover:not(.active){background:rgba(255,255,255,.28);}
   .kpis{
     display:grid;
     grid-template-columns:repeat(4, 1fr);
@@ -208,9 +287,6 @@
   .sw-stack{background:var(--green-bg); border:1px solid var(--green);}
   .sw-cap{background:var(--amber-bg); border:1px solid var(--amber);}
   .sw-pic{background:var(--red-bg); border:1px solid var(--red);}
-  .breakdown{
-    margin-top:24px;
-  }
   .breakdown table{font-size:13px;}
   .breakdown td, .breakdown th{padding:8px 10px;}
   .breakdown td.num{text-align:right; font-variant-numeric:tabular-nums;}
@@ -225,12 +301,6 @@
     margin-top:10px;
   }
   .reset-btn:hover{background:var(--blue-light);}
-  .note{
-    font-size:12px;
-    color:var(--ink-soft);
-    margin-top:14px;
-    line-height:1.6;
-  }
   .foot{
     text-align:center;
     color:var(--ink-soft);
@@ -241,9 +311,18 @@
 </head>
 <body>
 
+<div class="brandbar">
+  <div class="mark"><span class="dot"></span>New College of Florida &nbsp;|&nbsp; Enrollment Management</div>
+  <div class="tag">Internal planning tool</div>
+</div>
+
 <header>
-  <h1>Fall 2027 PHS model</h1>
-  <p>F26 spend analysis</p>
+  <h1>PHS Award Model Simulator</h1>
+  <p class="sub">What-if modeling for Presidential Honors Scholarship award criteria</p>
+  <div class="cohort-row">
+    <label for="cohortLabel">Cohort / run:</label>
+    <input id="cohortLabel" type="text" value="Fall 2026 FTIC">
+  </div>
 </header>
 
 <div class="wrap">
@@ -251,15 +330,18 @@
   <div class="rules">
     <b>Model rules</b>
     <ul>
-      <li>GPA and test score awards <b>stack</b> when the two levels are within <b>two levels</b> of each other (|GPA level − Test level| ≤ 2).</li>
-      <li>If the two levels are more than two apart, the student receives the <b>single higher</b> applicable award (no stacking).</li>
+      <li>GPA and test score awards <b>stack</b> when the two levels are within a set number of levels of each other (adjust the window below).</li>
+      <li>If the two levels are further apart than that window, the student receives the <b>single higher</b> applicable award (no stacking).</li>
       <li>Students at GPA Level 1 <b>and</b> Test Level 1 qualify for President's Inner Circle (PIC) and receive a flat award, overriding the stacking/cap logic above.</li>
     </ul>
-    All figures below are editable — adjust the award tables, PIC amount, or student counts to test other what-if scenarios. Everything recalculates live.
+    <div class="pic-row" style="border-top:none; padding-top:8px; margin-top:8px;">
+      Stacking window (levels apart):
+      <input id="stackWindow" type="number" min="0" max="5" value="2" style="width:60px;">
+    </div>
   </div>
 
   <div class="grid2">
-    <div class="card">
+    <div class="card" style="margin-bottom:0;">
       <div class="card-head">A. GPA criteria (Freshman / FTIC)</div>
       <div class="card-body">
         <table id="gpaTable">
@@ -280,7 +362,7 @@
       </div>
     </div>
 
-    <div class="card">
+    <div class="card" style="margin-bottom:0;">
       <div class="card-head">B. Test score criteria (Freshman / FTIC)</div>
       <div class="card-body">
         <table id="testTable">
@@ -298,8 +380,14 @@
     </div>
   </div>
 
-  <div class="card matrix-card" style="margin-bottom:24px;">
-    <div class="card-head">FTIC deposited students — GPA level × test score level (Fall 2026 actual)</div>
+  <div class="card matrix-card">
+    <div class="card-head">
+      <span id="matrixTitle">Enrolled students — GPA level × test score level</span>
+      <div class="pop-toggle">
+        <button class="pop-btn" id="btnDeposited" onclick="setPopulation('deposited')">Deposited</button>
+        <button class="pop-btn active" id="btnEnrolled" onclick="setPopulation('enrolled')">Enrolled</button>
+      </div>
+    </div>
     <div class="card-body">
       <table id="matrixTable">
         <thead>
@@ -319,24 +407,24 @@
           </tr>
         </tfoot>
       </table>
-      <button class="reset-btn" onclick="resetAll()">Reset to Fall 2026 actual data</button>
     </div>
   </div>
 
   <div class="kpis">
     <div class="kpi">
-      <div class="label">Deposited FTIC students</div>
+      <div class="label" id="kpiCountLabel">Enrolled FTIC students</div>
       <div class="value" id="kpiCount">—</div>
-      <div class="sub">from the GPA × test grid above</div>
+      <div class="sub">from the grid above</div>
     </div>
     <div class="kpi">
-      <div class="label">Actual Fall 2026 PHS spend</div>
-      <div class="value"><input id="actualSpendInput" class="kpi-input" type="number" value="1976417"></div>
+      <div class="label">Actual PHS spend</div>
+      <div class="value"><input id="actualSpendInput" class="kpi-input" type="number" value="0" placeholder="Enter actual spend"></div>
+      <div class="sub">enter for comparison</div>
     </div>
     <div class="kpi">
-      <div class="label">Projected spend — Option 1</div>
+      <div class="label">Projected spend — model above</div>
       <div class="value" id="kpiProjected">—</div>
-      <div class="sub" id="kpiProjectedSub">under the model above</div>
+      <div class="sub">under the criteria above</div>
     </div>
     <div class="kpi" id="kpiDeltaCard">
       <div class="label">Variance vs. actual</div>
@@ -359,8 +447,8 @@
       </table>
       <div class="legend">
         <span><span class="swatch sw-pic"></span>President's Inner Circle (flat award)</span>
-        <span><span class="swatch sw-stack"></span>Stacked (GPA + test, within 2 levels)</span>
-        <span><span class="swatch sw-cap"></span>Higher award only (more than 2 levels apart)</span>
+        <span><span class="swatch sw-stack"></span>Stacked (within the stacking window)</span>
+        <span><span class="swatch sw-cap"></span>Higher award only (outside the stacking window)</span>
       </div>
     </div>
   </div>
@@ -375,39 +463,61 @@
     </div>
   </div>
 
-  <div class="foot">Fall 2026 PHS Option 1 model simulator — for internal planning discussion only</div>
+  <div class="foot">New College of Florida — Enrollment Management — PHS Award Model Simulator — for internal planning discussion only</div>
 </div>
 
 <script>
-const matrixData = [
-  [17, 2, 3, 1, 0, 0],
-  [12, 5, 4, 2, 2, 0],
-  [25, 15, 8, 7, 5, 1],
-  [24, 22, 21, 18, 1, 3],
-  [5, 3, 3, 2, 1, 0],
-  [1, 4, 4, 2, 3, 2]
-];
+const matrixPresets = {
+  deposited: [
+    [17, 2, 3, 1, 0, 0],
+    [12, 5, 4, 2, 2, 0],
+    [25, 15, 8, 7, 5, 1],
+    [24, 22, 21, 18, 1, 3],
+    [5, 3, 3, 2, 1, 0],
+    [1, 4, 4, 2, 3, 2]
+  ],
+  enrolled: [
+    [14, 2, 3, 0, 0, 1],
+    [12, 4, 3, 2, 0, 2],
+    [24, 15, 8, 5, 3, 1],
+    [20, 18, 20, 17, 1, 3],
+    [4, 3, 3, 1, 0, 1],
+    [1, 3, 4, 2, 3, 2]
+  ]
+};
 const DEFAULT_GPA = {1:6500, 2:4000, 3:3500, 4:2000, 5:1000, 6:250};
 const DEFAULT_TEST = {1:8500, 2:6000, 3:3500, 4:2000, 5:250, 6:250};
 const DEFAULT_PIC = 16000;
-const DEFAULT_ACTUAL_SPEND = 1976417;
+const DEFAULT_STACK_WINDOW = 2;
+const DEFAULT_ACTUAL_SPEND = 0;
 
-function getActualSpend(){
-  const inp = document.getElementById('actualSpendInput');
-  return Math.max(0, Number(inp.value) || 0);
+let currentPopulation = 'enrolled';
+
+function setPopulation(pop){
+  currentPopulation = pop;
+  document.getElementById('btnDeposited').classList.toggle('active', pop === 'deposited');
+  document.getElementById('btnEnrolled').classList.toggle('active', pop === 'enrolled');
+  document.getElementById('matrixTitle').textContent =
+    (pop === 'deposited' ? 'Deposited' : 'Enrolled') + ' students — GPA level × test score level';
+  document.getElementById('kpiCountLabel').textContent =
+    (pop === 'deposited' ? 'Deposited' : 'Enrolled') + ' FTIC students';
+  buildMatrixInputs(matrixPresets[pop]);
+  attachListeners();
+  recalc();
 }
 
-function buildMatrixInputs(){
+function buildMatrixInputs(data){
   const body = document.getElementById('matrixBody');
   body.innerHTML = '';
   for(let t=1;t<=6;t++){
     const tr = document.createElement('tr');
-    let html = `<td class="lbl">Test ${t}</td>`;
+    let rowHtml = '<td class="lbl">Test ' + t + '</td>';
     for(let g=1;g<=6;g++){
-      html += `<td><input class="count-input" data-t="${t}" data-g="${g}" type="number" min="0" value="${matrixData[t-1][g-1]}"></td>`;
+      const v = data[t-1][g-1];
+      rowHtml += '<td><input class="count-input" data-t="' + t + '" data-g="' + g + '" type="number" min="0" value="' + v + '"></td>';
     }
-    html += `<td id="rowTotal${t}" style="font-weight:700;"></td>`;
-    tr.innerHTML = html;
+    rowHtml += '<td id="rowTotal' + t + '" style="font-weight:700;"></td>';
+    tr.innerHTML = rowHtml;
     body.appendChild(tr);
   }
 }
@@ -416,7 +526,7 @@ function getCounts(){
   const counts = {};
   document.querySelectorAll('#matrixBody input').forEach(inp=>{
     const t = inp.dataset.t, g = inp.dataset.g;
-    counts[`${t}_${g}`] = Math.max(0, Math.round(Number(inp.value) || 0));
+    counts[t + '_' + g] = Math.max(0, Math.round(Number(inp.value) || 0));
   });
   return counts;
 }
@@ -426,7 +536,13 @@ function getAwards(){
   document.querySelectorAll('[data-gpa]').forEach(inp => gpa[inp.dataset.gpa] = Math.max(0, Number(inp.value) || 0));
   document.querySelectorAll('[data-test]').forEach(inp => test[inp.dataset.test] = Math.max(0, Number(inp.value) || 0));
   const pic = Math.max(0, Number(document.getElementById('picAward').value) || 0);
-  return {gpa, test, pic};
+  const stackWindow = Math.max(0, Number(document.getElementById('stackWindow').value) || 0);
+  return {gpa, test, pic, stackWindow};
+}
+
+function getActualSpend(){
+  const inp = document.getElementById('actualSpendInput');
+  return Math.max(0, Number(inp.value) || 0);
 }
 
 function fmtMoney(v){
@@ -437,7 +553,7 @@ function computeAward(g, t, awards){
   if(g === 1 && t === 1) return {amount: awards.pic, type: 'pic'};
   const gAward = awards.gpa[g];
   const tAward = awards.test[t];
-  if(Math.abs(g - t) <= 2){
+  if(Math.abs(g - t) <= awards.stackWindow){
     return {amount: gAward + tAward, type: 'stack'};
   } else {
     return {amount: Math.max(gAward, tAward), type: 'cap'};
@@ -452,33 +568,32 @@ function recalc(){
   let totalSpend = 0;
   const colTotals = {1:0,2:0,3:0,4:0,5:0,6:0};
 
-  // per-cell award grid
   const awardBody = document.getElementById('awardBody');
   awardBody.innerHTML = '';
-  const cells = {}; // t_g -> award result for breakdown
+  const cells = {};
 
   for(let t=1; t<=6; t++){
     let rowTotal = 0;
     const tr = document.createElement('tr');
-    let html = `<td class="lbl">Test ${t}</td>`;
+    let rowHtml = '<td class="lbl">Test ' + t + '</td>';
     for(let g=1; g<=6; g++){
-      const n = counts[`${t}_${g}`] || 0;
+      const n = counts[t + '_' + g] || 0;
       rowTotal += n;
       colTotals[g] += n;
       totalStudents += n;
       const res = computeAward(g, t, awards);
-      cells[`${t}_${g}`] = {...res, count: n};
+      cells[t + '_' + g] = Object.assign({}, res, {count: n});
       totalSpend += res.amount * n;
       const cls = res.type === 'pic' ? 'pic' : (res.type === 'stack' ? 'stack' : 'cap');
-      html += `<td class="award ${cls}">${fmtMoney(res.amount)}<br><span style="font-weight:400; font-size:11px;">n=${n}</span></td>`;
+      rowHtml += '<td class="award ' + cls + '">' + fmtMoney(res.amount) + '<br><span style="font-weight:400; font-size:11px;">n=' + n + '</span></td>';
     }
-    document.getElementById(`rowTotal${t}`).textContent = rowTotal.toLocaleString('en-US');
-    tr.innerHTML = html;
+    document.getElementById('rowTotal' + t).textContent = rowTotal.toLocaleString('en-US');
+    tr.innerHTML = rowHtml;
     awardBody.appendChild(tr);
   }
 
   for(let g=1; g<=6; g++){
-    document.getElementById(`colTotal${g}`).textContent = colTotals[g].toLocaleString('en-US');
+    document.getElementById('colTotal' + g).textContent = colTotals[g].toLocaleString('en-US');
   }
   document.getElementById('grandTotalCount').textContent = totalStudents.toLocaleString('en-US');
 
@@ -490,12 +605,18 @@ function recalc(){
   const deltaPct = actualSpend ? (delta / actualSpend) * 100 : 0;
   const deltaCard = document.getElementById('kpiDeltaCard');
   const deltaEl = document.getElementById('kpiDelta');
-  deltaEl.textContent = (delta >= 0 ? '+' : '−') + fmtMoney(Math.abs(delta)).replace('$','$');
-  document.getElementById('kpiDeltaPct').textContent = (delta >= 0 ? '+' : '−') + Math.abs(deltaPct).toFixed(1) + '% vs. actual';
+  if(actualSpend > 0){
+    deltaEl.textContent = (delta >= 0 ? '+' : '\u2212') + fmtMoney(Math.abs(delta));
+    document.getElementById('kpiDeltaPct').textContent = (delta >= 0 ? '+' : '\u2212') + Math.abs(deltaPct).toFixed(1) + '% vs. actual';
+  } else {
+    deltaEl.textContent = '—';
+    document.getElementById('kpiDeltaPct').textContent = 'enter actual spend above';
+  }
   deltaCard.classList.remove('delta-pos','delta-neg');
-  deltaCard.classList.add(delta >= 0 ? 'delta-pos' : 'delta-neg');
+  if(actualSpend > 0){
+    deltaCard.classList.add(delta >= 0 ? 'delta-pos' : 'delta-neg');
+  }
 
-  // breakdown by award type
   let picStudents=0, picSpend=0, stackStudents=0, stackSpend=0, capStudents=0, capSpend=0;
   Object.values(cells).forEach(c=>{
     if(c.type==='pic'){ picStudents+=c.count; picSpend+=c.amount*c.count; }
@@ -503,22 +624,23 @@ function recalc(){
     else { capStudents+=c.count; capSpend+=c.amount*c.count; }
   });
   const rows = [
-    ['President\'s Inner Circle (flat award)', picStudents, picSpend],
-    ['Stacked (GPA + test, ≤2 levels apart)', stackStudents, stackSpend],
-    ['Higher award only (>2 levels apart)', capStudents, capSpend],
+    ["President's Inner Circle (flat award)", picStudents, picSpend],
+    ['Stacked (within stacking window)', stackStudents, stackSpend],
+    ['Higher award only (outside stacking window)', capStudents, capSpend],
   ];
   const body = document.getElementById('breakdownBody');
   body.innerHTML = '';
-  rows.forEach(([label, n, spend])=>{
+  rows.forEach(function(row){
+    const label = row[0], n = row[1], spend = row[2];
     const avg = n > 0 ? spend / n : 0;
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td style="text-align:left;">${label}</td><td class="num">${n.toLocaleString('en-US')}</td><td class="num">${fmtMoney(spend)}</td><td class="num">${fmtMoney(avg)}</td>`;
+    tr.innerHTML = '<td style="text-align:left;">' + label + '</td><td class="num">' + n.toLocaleString('en-US') + '</td><td class="num">' + fmtMoney(spend) + '</td><td class="num">' + fmtMoney(avg) + '</td>';
     body.appendChild(tr);
   });
   const totalRow = document.createElement('tr');
   totalRow.style.fontWeight = '700';
   totalRow.style.borderTop = '2px solid var(--line)';
-  totalRow.innerHTML = `<td style="text-align:left;">Total</td><td class="num">${totalStudents.toLocaleString('en-US')}</td><td class="num">${fmtMoney(totalSpend)}</td><td class="num">${fmtMoney(totalStudents>0?totalSpend/totalStudents:0)}</td>`;
+  totalRow.innerHTML = '<td style="text-align:left;">Total</td><td class="num">' + totalStudents.toLocaleString('en-US') + '</td><td class="num">' + fmtMoney(totalSpend) + '</td><td class="num">' + fmtMoney(totalStudents>0?totalSpend/totalStudents:0) + '</td>';
   body.appendChild(totalRow);
 }
 
@@ -526,8 +648,9 @@ function resetAll(){
   document.querySelectorAll('[data-gpa]').forEach(inp => inp.value = DEFAULT_GPA[inp.dataset.gpa]);
   document.querySelectorAll('[data-test]').forEach(inp => inp.value = DEFAULT_TEST[inp.dataset.test]);
   document.getElementById('picAward').value = DEFAULT_PIC;
+  document.getElementById('stackWindow').value = DEFAULT_STACK_WINDOW;
   document.getElementById('actualSpendInput').value = DEFAULT_ACTUAL_SPEND;
-  buildMatrixInputs();
+  buildMatrixInputs(matrixPresets[currentPopulation]);
   attachListeners();
   recalc();
 }
@@ -538,7 +661,7 @@ function attachListeners(){
   });
 }
 
-buildMatrixInputs();
+buildMatrixInputs(matrixPresets[currentPopulation]);
 attachListeners();
 recalc();
 </script>
